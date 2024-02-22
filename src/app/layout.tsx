@@ -1,10 +1,17 @@
 import "@/styles/globals.css";
 
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_Thai } from "next/font/google";
+import React from "react";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-inter",
+});
+
+const notoSansThai = Noto_Sans_Thai({
+  subsets: ["thai"],
+  variable: "--font-thai",
+  display: "swap",
 });
 
 export const metadata = {
@@ -20,7 +27,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>{children}</body>
+      <body className={`${inter.variable} ${notoSansThai.variable} font-sans`}>
+        {children}
+      </body>
     </html>
   );
 }
