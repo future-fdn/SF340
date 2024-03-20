@@ -8,5 +8,5 @@ export default {
   dbCredentials: {
     uri: env.DATABASE_URL,
   },
-  tablesFilter: ["SF340_*"],
+  tablesFilter: ["sf340_*"],
 } satisfies Config;
