@@ -1,11 +1,5 @@
-"use client";
-
-import Directions from "@/components/directions";
+import { redirect } from "next/navigation";
 
 export default function Homepage() {
-  return (
-    <main className="flex h-screen w-screen items-center justify-center">
-      <Directions />
-    </main>
-  );
+  redirect("/expressway");
 }
