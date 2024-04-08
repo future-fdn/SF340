@@ -81,14 +81,14 @@ export default function TypePopover({ field, form }: TypeProps) {
           <Command>
             <CommandList>
               <CommandItem
-                value={"รถธรรมดา"}
+                value={"รถแท็กซี่ธรรมดา"}
                 key={"2"}
                 onSelect={() => {
                   form.setValue("type", "2");
                   setOpen(false);
                 }}
               >
-                {"รถธรรมดา"}
+                {"รถแท็กซี่ธรรมดา"}
                 <CheckIcon
                   className={cn(
                     "ml-auto h-4 w-4",

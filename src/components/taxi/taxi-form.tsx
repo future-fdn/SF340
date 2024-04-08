@@ -117,7 +117,7 @@ export default function TaxiForm() {
         <AlertDialogHeader>
           <AlertDialogTitle>Expressway Fare Result</AlertDialogTitle>
           <AlertDialogDescription>
-            <p className="font-semibold">
+            <p className="font-thai font-semibold">
               Distance Traveled: {form.getValues("distance")} kilometer(s)
               <br />
               In Traffic: {form.getValues("traffic")} minute(s)
@@ -137,7 +137,7 @@ export default function TaxiForm() {
                 )}
               >
                 {form.getValues("is_airport") ? <CheckIcon /> : <Cross1Icon />}
-                <p className="text-xs">
+                <p className="font-thai text-xs">
                   จ้างจากท่าอากาศยานดอนเมือง หรือท่าอากาศยานสุวรรณภูมิ ณ
                   จุดที่ได้จัดไว้เป็นการเฉพาะ
                 </p>
@@ -156,7 +156,7 @@ export default function TaxiForm() {
                 )}
               >
                 {form.getValues("is_commu") ? <CheckIcon /> : <Cross1Icon />}
-                <p className="text-xs">
+                <p className="font-thai text-xs">
                   จ้างผ่านศูนย์บริการสื่อสารหรือระบบสื่อสารทางอิเล็กทรอนิกส์
                 </p>
                 {form.getValues("is_commu") && (
