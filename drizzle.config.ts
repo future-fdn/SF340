@@ -4,9 +4,9 @@ import { env } from "@/env";
 
 export default {
   schema: "./src/server/db/schema.ts",
-  driver: "better-sqlite",
+  driver: "pg",
   dbCredentials: {
-    url: env.DATABASE_URL,
+    connectionString: env.DATABASE_URL,
   },
   tablesFilter: ["sf340_*"],
 } satisfies Config;
