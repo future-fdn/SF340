@@ -18,11 +18,7 @@ import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 
-type typeOptions = {
-  [key: string]: string;
-};
-
-export const taxi_types: typeOptions = {
+export const taxi_types: Record<string, string> = {
   "1.1": "รถแท็กซี่เก๋งสามตอน",
   "1.2": "รถแท็กซี่เก๋งสามตอนแวน",
   "1.3": "รถแท็กซี่นั่งสามตอน",
