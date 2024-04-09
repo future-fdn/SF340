@@ -115,7 +115,7 @@ export default function TaxiForm() {
       </Form>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Expressway Fare Result</AlertDialogTitle>
+          <AlertDialogTitle>Taxi Fare Result</AlertDialogTitle>
           <AlertDialogDescription>
             <p className="font-thai font-semibold">
               Distance Traveled: {form.getValues("distance")} kilometer(s)
