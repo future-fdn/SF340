@@ -1,24 +1,16 @@
 services:
-  nginx-proxy:
-    build: ./nginx
-    image: nginx
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
   backend:
     build: ./backend
     command: python -m uvicorn app.main:app --host 0.0.0.0
     volumes:
-      - ./products:/code
+      - ./backend:/code
     ports:
       - "3341:8000"
-    depends_on:
-      - nginx-proxy
   frontend:
-    container_name: frontend
     build: ./frontend
+    command: npm run start
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-    ports:
-      - 3000:3000
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
