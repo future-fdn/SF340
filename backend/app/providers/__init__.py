@@ -184,4 +184,7 @@ def calculate_bts_mrt(origin_station, dest_station):
 
         price += fare
 
+    if travel_list[-1]["code"] != dest_station["code"]:
+        travel_list.append(dest_station)
+
     return travel_list, price

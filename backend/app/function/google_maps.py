@@ -22,7 +22,7 @@ def google_map(url: str, wheel: int):
     full_url = response.url
 
     extracted_data = re.search(
-        r"https:\/\/www.google.com\/maps\/dir\/(.*)\/@", full_url
+        r"https:\/\/www\.google\..*?\/maps\/dir\/(.*)\/@", full_url
     ).group(1)
     all_stops = extracted_data.split("/")
     all_stops = list(map(lambda x: unquote(x.encode("utf8")), all_stops))

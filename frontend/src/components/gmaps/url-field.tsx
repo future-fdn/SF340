@@ -22,7 +22,7 @@ interface TrafficFieldProps {
   >;
 }
 
-export default function TrafficField({ form }: TrafficFieldProps) {
+export default function UrlField({ form }: TrafficFieldProps) {
   return (
     <>
       <FormField
