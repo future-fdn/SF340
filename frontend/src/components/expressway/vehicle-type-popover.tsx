@@ -14,9 +14,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { VehicleType, getVehicleTypes } from "@/server/actions/queries";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 
 interface VehicleTypePopoverProps {
@@ -40,16 +39,12 @@ export default function VehicleTypePopover({
   form,
 }: VehicleTypePopoverProps) {
   const [open, setOpen] = useState(false);
-  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>();
-
-  useEffect(() => {
-    const fetchVehicleTypes = async () => {
-      const result = await getVehicleTypes();
-      setVehicleTypes(result);
-    };
-
-    fetchVehicleTypes();
-  }, []);
+  const vehicleTypes = [
+    { id: 1, vehicle_type: 4, vehicle_label: "รถยนต์ 4 ล้อ" },
+    { id: 2, vehicle_type: 6, vehicle_label: "รถยนต์ตั้งแต่ 6 ล้อขึ้นไป" },
+    { id: 3, vehicle_type: 8, vehicle_label: "รถยนต์ตั้งแต่ 8 ล้อขึ้นไป" },
+    { id: 4, vehicle_type: 10, vehicle_label: "รถยนต์มากกว่า 10 ล้อ" },
+  ];
 
   return (
     <FormItem className="flex w-full flex-col">

@@ -11,11 +11,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { getTrainFare } from "@/server/actions/queries";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { env } from "../../env";
 
 export const FormSchema = z.object({
   origin: z.string({
@@ -31,6 +32,7 @@ export default function TrainForm() {
     resolver: zodResolver(FormSchema),
   });
   const [fareTotal, setFare] = useState(0);
+  const [connections, setConnections] = useState<any>([]);
   const [error, setError] = useState(false);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -38,15 +40,19 @@ export default function TrainForm() {
     setError(false);
     let fare = 0;
 
-    const result = await getTrainFare(data.origin, data.destination);
+    const result = await axios
+      .get(
+        env.NEXT_PUBLIC_API_URL +
+          "/trains/" +
+          data.origin +
+          "/" +
+          data.destination,
+      )
+      .then((response) => response.data);
 
-    if (result[0] === undefined) {
-      setError(true);
-      return;
-    }
+    fare = result.total ?? 0;
 
-    fare = result[0]?.fare ?? 0;
-
+    setConnections(result.journey);
     setFare(fare);
   }
 
@@ -74,21 +80,28 @@ export default function TrainForm() {
         <AlertDialogHeader>
           <AlertDialogTitle>Train Fare Result</AlertDialogTitle>
           <AlertDialogDescription>
-            <p className="font-semibold">
-              {form.getValues("origin")} {"->"} {form.getValues("destination")}
-            </p>
-            {error ? (
-              <p className="text-xl font-extrabold text-destructive">
-                An error has occured
-              </p>
-            ) : (
-              <p className="text-xl font-extrabold">
-                Total Fare: {fareTotal} THB
-              </p>
-            )}
+            {connections?.map((connection: any) => (
+              <>
+                <h2 className="text-lg font-bold">
+                  {connection.station_name_th} ({connection.code})
+                </h2>
+                <p className="mb-2 text-sm font-medium">
+                  {connection.line_name_th}
+                </p>
+              </>
+            ))}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="justify-between">
+          {error ? (
+            <p className="text-xl font-extrabold text-destructive">
+              An error has occured
+            </p>
+          ) : (
+            <p className="text-xl font-extrabold">
+              Total Fare: {fareTotal} THB
+            </p>
+          )}
           <AlertDialogCancel>Done</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

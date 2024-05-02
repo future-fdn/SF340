@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils";
 
 const examples = [
   {
+    name: "Google Maps",
+    href: "/",
+  },
+  {
     name: "Expressway",
     href: "/expressway",
   },
@@ -36,7 +40,7 @@ export function Nav({ className, ...props }: Nav) {
               key={example.href}
               className={cn(
                 "flex h-7 items-center justify-center rounded-full px-4 text-center text-sm transition-colors hover:text-primary",
-                pathname?.startsWith(example.href) ||
+                pathname?.replace(example.href, "") === "" ||
                   (index === 0 && pathname === "/")
                   ? "bg-muted font-medium text-primary"
                   : "text-muted-foreground",

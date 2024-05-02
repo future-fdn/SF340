@@ -22,19 +22,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import {
-  TollType,
-  getDestinations,
-  getTollNames,
-} from "@/server/actions/queries";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
+import { env } from "../../env";
 
-interface DestinationProps {
+interface OriginProps {
   field: ControllerRenderProps<
     { vehicle_type: string; origin: string; destination: string },
-    "destination"
+    "origin"
   >;
   form: UseFormReturn<
     {
@@ -47,24 +44,50 @@ interface DestinationProps {
   >;
 }
 
-export default function DestinationPopover({ field, form }: DestinationProps) {
+export default function OriginPopover({ field, form }: OriginProps) {
   const [open, setOpen] = useState(false);
-  const [destinations, setDestinations] = useState<TollType[]>();
+  const [origins, setOrigins] =
+    useState<{ toll_name: string | null; checkpoint_name: string | null }[]>();
   const [tollNames, setTollNames] = useState<{ toll_name: string | null }[]>();
 
   useEffect(() => {
-    const fetchDestinations = async () => {
-      const result = await getDestinations();
-      setDestinations(result);
-    };
-
-    fetchDestinations();
-  }, []);
-
-  useEffect(() => {
     const fetchTollNames = async () => {
-      const result = await getTollNames();
-      setTollNames(result);
+      const result = await axios
+        .get(env.NEXT_PUBLIC_API_URL + "/tolls")
+        .then((response: any) => response.data);
+
+      // @ts-ignore
+      function extractKeys(data, whitelist) {
+        // @ts-ignore
+        const result = [];
+        // @ts-ignore
+        data.tolls.forEach((toll) => {
+          // @ts-ignore
+          toll.checkpoints.forEach((checkpoint) => {
+            const filtered_checkpoint = {};
+            // @ts-ignore
+            whitelist.forEach((key) => {
+              if (checkpoint.hasOwnProperty(key)) {
+                // @ts-ignore
+                filtered_checkpoint[key] = checkpoint[key];
+              }
+            });
+            result.push(filtered_checkpoint);
+          });
+        });
+        // @ts-ignore
+        return result;
+      }
+
+      // Specified keys to whitelist
+      const whitelistKeys = ["toll_name", "checkpoint_name"];
+
+      // Extract whitelisted keys from the station_name_th objects
+      const whitelistedData = extractKeys(result, whitelistKeys);
+
+      setTollNames(result.tolls);
+      // @ts-ignore
+      setOrigins(whitelistedData);
     };
 
     fetchTollNames();
@@ -72,7 +95,7 @@ export default function DestinationPopover({ field, form }: DestinationProps) {
 
   return (
     <FormItem className="flex w-full flex-col">
-      <FormLabel>Destination</FormLabel>
+      <FormLabel>Origin</FormLabel>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <FormControl>
@@ -84,25 +107,23 @@ export default function DestinationPopover({ field, form }: DestinationProps) {
                 !field.value && "text-muted-foreground",
               )}
             >
-              {destinations?.find(
-                (destination) =>
-                  destination.toll_name + "/" + destination.checkpoint ===
+              {origins?.find(
+                (origin) =>
+                  origin.toll_name + "/" + origin.checkpoint_name ===
                   field.value,
               )?.toll_name &&
-              destinations?.find(
-                (destination) =>
-                  destination.toll_name + "/" + destination.checkpoint ===
+              origins?.find(
+                (origin) =>
+                  origin.toll_name + "/" + origin.checkpoint_name ===
                   field.value,
-              )?.checkpoint ? (
+              )?.checkpoint_name ? (
                 <>
                   <Badge
                     variant="outline"
                     className={cn(
-                      destinations?.find(
-                        (destination) =>
-                          destination.toll_name +
-                            "/" +
-                            destination.checkpoint ===
+                      origins?.find(
+                        (origin) =>
+                          origin.toll_name + "/" + origin.checkpoint_name ===
                           field.value,
                       )?.toll_name
                         ? "opacity-100"
@@ -110,29 +131,25 @@ export default function DestinationPopover({ field, form }: DestinationProps) {
                     )}
                   >
                     {
-                      destinations?.find(
-                        (destination) =>
-                          destination.toll_name +
-                            "/" +
-                            destination.checkpoint ===
+                      origins?.find(
+                        (origin) =>
+                          origin.toll_name + "/" + origin.checkpoint_name ===
                           field.value,
                       )?.toll_name
                     }
                   </Badge>
                   <p className="w-full pl-2 text-left">
                     {
-                      destinations?.find(
-                        (destination) =>
-                          destination.toll_name +
-                            "/" +
-                            destination.checkpoint ===
+                      origins?.find(
+                        (origin) =>
+                          origin.toll_name + "/" + origin.checkpoint_name ===
                           field.value,
-                      )?.checkpoint
+                      )?.checkpoint_name
                     }
                   </p>
                 </>
               ) : (
-                "Select destination"
+                "Select origin"
               )}
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -144,38 +161,33 @@ export default function DestinationPopover({ field, form }: DestinationProps) {
         >
           <Command>
             <CommandInput
-              placeholder="Search destination..."
+              placeholder="Search origin..."
               className="h-9 font-thai text-sm"
             />
             <CommandList>
-              <CommandEmpty>Destination not found.</CommandEmpty>
+              <CommandEmpty>Origin not found.</CommandEmpty>
               {tollNames?.map((tollname) => (
                 <CommandGroup heading={tollname.toll_name}>
-                  {destinations
+                  {origins
                     ?.filter((obj) => obj.toll_name === tollname.toll_name)
-                    .map((destination) => (
+                    .map((origin) => (
                       <CommandItem
-                        value={destination.checkpoint ?? undefined}
-                        key={
-                          destination.toll_name + "/" + destination.checkpoint
-                        }
+                        value={origin.checkpoint_name ?? undefined}
+                        key={origin.toll_name + "/" + origin.checkpoint_name}
                         onSelect={() => {
                           form.setValue(
-                            "destination",
-                            destination.toll_name +
-                              "/" +
-                              destination.checkpoint ?? "",
+                            "origin",
+                            origin.toll_name + "/" + origin.checkpoint_name ??
+                              "",
                           );
                           setOpen(false);
                         }}
                       >
-                        {destination.checkpoint}
+                        {origin.checkpoint_name}
                         <CheckIcon
                           className={cn(
                             "ml-auto h-4 w-4",
-                            destination.toll_name +
-                              "/" +
-                              destination.checkpoint ===
+                            origin.toll_name + "/" + origin.checkpoint_name ===
                               field.value
                               ? "opacity-100"
                               : "opacity-0",

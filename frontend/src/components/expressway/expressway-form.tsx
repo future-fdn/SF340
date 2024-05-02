@@ -13,10 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { getExpresswayFare } from "../../server/actions/queries";
+import { env } from "../../env";
 import VehicleTypeField from "./vehicle-type-field";
 
 export const FormSchema = z.object({
@@ -44,21 +45,15 @@ export default function ExpresswayForm() {
     setError(false);
     let fare = 0;
 
-    const result = await getExpresswayFare(data.origin, data.destination);
+    const result = await axios
+      .get(
+        env.NEXT_PUBLIC_API_URL +
+          `/tolls/calculate?origin=${data.origin}&dest=${data.destination}&wheel=${data.vehicle_type.replace(/\D/g, "")}`,
+      )
+      .then((response) => response.data)
+      .catch((error) => setError(true));
 
-    if (result[0] === undefined || result[1] === undefined) {
-      setError(true);
-      return;
-    }
-
-    if (data.vehicle_type == "รถยนต์ 4 ล้อ")
-      fare = (result[0]?.four_wheeler ?? 0) + (result[1]?.four_wheeler ?? 0);
-    else if (data.vehicle_type == "รถยนต์ตั้งแต่ 6 ล้อขึ้นไป")
-      fare = (result[0]?.six_wheeler ?? 0) + (result[1]?.six_wheeler ?? 0);
-    else if (data.vehicle_type == "รถยนต์ตั้งแต่ 8 ล้อขึ้นไป")
-      fare = (result[0]?.eight_wheeler ?? 0) + (result[1]?.eight_wheeler ?? 0);
-    else if (data.vehicle_type == "รถยนต์มากกว่า 10 ล้อ")
-      fare = (result[0]?.ten_wheeler ?? 0) + (result[1]?.ten_wheeler ?? 0);
+    fare = result.fare ?? 0;
 
     setFare(fare);
   }
@@ -84,21 +79,30 @@ export default function ExpresswayForm() {
         <AlertDialogHeader>
           <AlertDialogTitle>Expressway Fare Result</AlertDialogTitle>
           <AlertDialogDescription>
-            <p className="font-semibold">
-              {form.getValues("origin")} {"->"} {form.getValues("destination")}
+            <h2 className="text-lg font-bold">
+              {(form.getValues("origin") ?? "").split("/")[0]}
+            </h2>
+            <p className="mb-2 text-sm font-medium">
+              {(form.getValues("origin") ?? "").split("/")[1]}
             </p>
-            {error ? (
-              <p className="text-xl font-extrabold text-destructive">
-                An error has occured
-              </p>
-            ) : (
-              <p className="text-xl font-extrabold">
-                Total Fare: {fareTotal} THB
-              </p>
-            )}
+            <h2 className="text-lg font-bold">
+              {(form.getValues("destination") ?? "").split("/")[0]}
+            </h2>
+            <p className="mb-2 text-sm font-medium">
+              {(form.getValues("destination") ?? "").split("/")[1]}
+            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
+          {error ? (
+            <p className="text-xl font-extrabold text-destructive">
+              An error has occured
+            </p>
+          ) : (
+            <p className="text-xl font-extrabold">
+              Total Fare: {fareTotal} THB
+            </p>
+          )}
           <AlertDialogCancel>Done</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

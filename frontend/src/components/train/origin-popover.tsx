@@ -22,10 +22,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { getTrainLines } from "@/server/actions/queries";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
+import { env } from "../../env";
 
 interface OriginProps {
   field: ControllerRenderProps<
@@ -41,8 +42,8 @@ interface OriginProps {
     undefined
   >;
   origins: {
-    station: string | null;
-    line_name: string | null;
+    station_name_th: string | null;
+    line_name_th: string | null;
     code: string | null;
   }[];
 }
@@ -50,16 +51,16 @@ interface OriginProps {
 export default function OriginPopover({ field, form, origins }: OriginProps) {
   const [open, setOpen] = useState(false);
 
-  const [lineNames, setLineNames] = useState<
-    {
-      line_name: string | null;
-    }[]
-  >();
+  const [lineNames, setLineNames] =
+    useState<{ line_name_th: string | null }[]>();
 
   useEffect(() => {
     const fetchLineNames = async () => {
-      const result = await getTrainLines();
-      setLineNames(result);
+      const result = await axios
+        .get(env.NEXT_PUBLIC_API_URL + "/trains")
+        .then((response: any) => response.data);
+
+      setLineNames(result.lines);
     };
 
     fetchLineNames();
@@ -85,7 +86,7 @@ export default function OriginPopover({ field, form, origins }: OriginProps) {
                     variant="outline"
                     className={cn(
                       origins?.find((origin) => origin.code === field.value)
-                        ?.line_name
+                        ?.line_name_th
                         ? "opacity-100"
                         : "opacity-0",
                       "mr-1",
@@ -93,7 +94,7 @@ export default function OriginPopover({ field, form, origins }: OriginProps) {
                   >
                     {
                       origins?.find((origin) => origin.code === field.value)
-                        ?.line_name
+                        ?.line_name_th
                     }
                   </Badge>
                   <Badge
@@ -113,7 +114,7 @@ export default function OriginPopover({ field, form, origins }: OriginProps) {
                   <p className="w-full pl-2 text-left">
                     {
                       origins?.find((origin) => origin.code === field.value)
-                        ?.station
+                        ?.station_name_th
                     }
                   </p>
                 </>
@@ -136,19 +137,21 @@ export default function OriginPopover({ field, form, origins }: OriginProps) {
             <CommandList>
               <CommandEmpty>Origin not found.</CommandEmpty>
               {lineNames?.map((linename) => (
-                <CommandGroup heading={linename.line_name}>
+                <CommandGroup heading={linename.line_name_th}>
                   {origins
-                    ?.filter((obj) => obj.line_name === linename.line_name)
+                    ?.filter(
+                      (obj) => obj.line_name_th === linename.line_name_th,
+                    )
                     .map((origin) => (
                       <CommandItem
-                        value={origin.station ?? undefined}
+                        value={origin.station_name_th ?? undefined}
                         key={origin.code}
                         onSelect={() => {
                           form.setValue("origin", origin.code ?? "");
                           setOpen(false);
                         }}
                       >
-                        {origin.station}
+                        {origin.station_name_th}
                         <CheckIcon
                           className={cn(
                             "ml-auto h-4 w-4",
